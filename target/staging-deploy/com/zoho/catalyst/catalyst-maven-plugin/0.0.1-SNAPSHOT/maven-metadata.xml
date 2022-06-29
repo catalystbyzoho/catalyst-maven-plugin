@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<metadata modelVersion="1.1.0">
+  <groupId>com.zoho.catalyst</groupId>
+  <artifactId>catalyst-maven-plugin</artifactId>
+  <versioning>
+    <lastUpdated>20220624112805</lastUpdated>
+    <snapshot>
+      <timestamp>20220624.112805</timestamp>
+      <buildNumber>1</buildNumber>
+    </snapshot>
+    <snapshotVersions>
+      <snapshotVersion>
+        <extension>jar</extension>
+        <value>0.0.1-20220624.112805-1</value>
+        <updated>20220624112805</updated>
+      </snapshotVersion>
+      <snapshotVersion>
+        <extension>pom</extension>
+        <value>0.0.1-20220624.112805-1</value>
+        <updated>20220624112805</updated>
+      </snapshotVersion>
+    </snapshotVersions>
+  </versioning>
+  <version>0.0.1-SNAPSHOT</version>
+</metadata>
