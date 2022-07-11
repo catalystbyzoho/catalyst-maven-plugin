@@ -10,8 +10,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class Oauth2HttpHandler implements HttpHandler {
-    private static String code;
-    private static String location;
+    private String code;
+    private String location;
 
     @Override
     public void handle(HttpExchange httpExchange) throws IOException {
@@ -29,8 +29,8 @@ public class Oauth2HttpHandler implements HttpHandler {
             }
             return;
         }
-        Oauth2HttpHandler.code = map.get("code");
-        Oauth2HttpHandler.location = map.get("location");
+        this.code = map.get("code");
+        this.location = map.get("location");
 
         String response = "Processing completed successfully";
         httpExchange.sendResponseHeaders(200, response.length());
@@ -39,11 +39,11 @@ public class Oauth2HttpHandler implements HttpHandler {
         }
     }
 
-    public static String getCode() {
-        return Oauth2HttpHandler.code;
+    public String getCode() {
+        return this.code;
     }
 
-    public static String getLocation() {
-        return Oauth2HttpHandler.location;
+    public String getLocation() {
+        return this.location;
     }
 }
