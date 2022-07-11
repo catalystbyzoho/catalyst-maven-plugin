@@ -10,6 +10,7 @@ import okhttp3.*;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.net.InetSocketAddress;
 import java.net.URL;
@@ -25,12 +26,25 @@ public class Oauth2Auth extends Authenticator  {
     private static final String ZOHO_ACCOUNTS_URL = "https://accounts.zoho.com";
     private static final String CLIENT_ID = "1000.D5IIHDXSPN2MII26AD0V61I6RMVSNM";
     private static final String CLIENT_SECRET = "02ee875ecfc50573e5cc8d62916ad3077be20d0f42";
-    private static final Long MAX_EXPIRY = 15 * 60L; // 15 min in sec
+    private static final Long MAX_EXPIRY = 15 * 60 * 1000L; // 15 min in millis
     private static PluginCredential cred = null;
+    public static File getConfigFile() {
+        return Paths.get(AuthUtil.getOSConfigDir(APP_NAME).toString(), CONFIG_FILE_NAME).toFile();
+    }
+
+    public static void writeCredToFile(File configFile) throws IOException {
+        log.info("writing to file ::: " + configFile.getAbsolutePath());
+        if(!configFile.exists()) {
+            configFile.getParentFile().mkdirs();
+            configFile.createNewFile();
+        }
+        new ObjectMapper().writeValue(configFile, cred);
+        log.info("writing complete");
+    }
 
     protected Oauth2Auth() throws Exception {
         super();
-        File configFile = Paths.get(AuthUtil.getOSConfigDir(APP_NAME).toString(), CONFIG_FILE_NAME).toFile();
+        File configFile = getConfigFile();
         if(configFile.exists()) {
             try(InputStream stream = new FileInputStream(configFile)) {
                 ObjectMapper mapper = new ObjectMapper();
@@ -42,15 +56,7 @@ public class Oauth2Auth extends Authenticator  {
         // login here
         cred = login();
         log.info("credential has been returned :::: " + cred.getAccessToken() + cred.getRefreshToken());
-        ObjectMapper mapper = new ObjectMapper();
-        log.info("writing to file ::: " + configFile.exists());
-        log.info("writing to file ::: " + configFile.getAbsolutePath());
-        if(!configFile.exists()) {
-            configFile.getParentFile().mkdirs();
-            configFile.createNewFile();
-        }
-        mapper.writeValue(configFile, cred);
-        log.info("writing complete");
+        writeCredToFile(configFile);
     }
 
     private String getAccountsUrl() {
@@ -125,7 +131,6 @@ public class Oauth2Auth extends Authenticator  {
         server.stop(0);
         executorService.shutdownNow();
         if(code == null || location == null) {
-            log.info("timeMultiplier::: " + String.valueOf(timeMultiplier));
             throw new Exception("Unable to get code and location from server");
         }
         // TODO: update active DC
@@ -160,11 +165,12 @@ public class Oauth2Auth extends Authenticator  {
         cred.setCreatedTime(cred.getCreatedTime() == null ? System.currentTimeMillis() : cred.getCreatedTime());
         cred.setExpiresAt(System.currentTimeMillis() + (refreshedCred.getExpiredIn() * 1000));
         cred.setAccessToken(refreshedCred.getAccessToken());
+        writeCredToFile(getConfigFile());
     }
 
     @Override
     public String getAccessToken(boolean forceRefresh) throws Exception {
-        if(forceRefresh || (cred.getExpiresAt() < System.currentTimeMillis() + MAX_EXPIRY)) {
+        if(forceRefresh || (cred.getExpiresAt() < (System.currentTimeMillis() + MAX_EXPIRY))) {
             log.info("refreshing access token");
             refreshAccessToken();
         }
