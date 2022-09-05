@@ -30,7 +30,7 @@ jobs:
           gpg-private-key: ${{ secrets.MAVEN_GPG_PRIVATE_KEY }}
           gpg-passphrase: MAVEN_GPG_PASSPHRASE
       - name: Replace Secret
-          run: sed -i "" "s/{{__CATALYST_CLIENT_SECRET__}}/$CATALYST_CLIENT_SECRET/g" src/main/java/com/zoho/catalyst/auth/Oauth2Auth.java
+          run: sed -i "s/{{__CATALYST_CLIENT_SECRET__}}/$CATALYST_CLIENT_SECRET/g" src/main/java/com/zoho/catalyst/auth/Oauth2Auth.java
           env:
             CATALYST_CLIENT_SECRET: ${{ secrets.CATALYST_CLIENT_SECRET }}
       - name: Publish to the Maven Central Repository
