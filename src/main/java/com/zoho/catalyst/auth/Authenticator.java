@@ -9,6 +9,9 @@ import java.util.HashMap;
 
 public class Authenticator implements ICatalystAuth {
     public static HashMap<AuthType, Authenticator> authMap = new HashMap<>();
+
+    private CatalystAuthConfig authConfig = null;
+
     protected Authenticator() {
 
     }
@@ -16,21 +19,22 @@ public class Authenticator implements ICatalystAuth {
     public String getAccessToken() throws Exception {
         return getAccessToken(false);
     }
+
     @Override
     public String getAccessToken(boolean forceRefresh) throws Exception {
         return null;
     }
 
     public AuthType getAuthType() {
-        return null;
+        return authConfig.getType();
     }
 
     public Environment getEnvironment() {
-        return null;
+        return authConfig.getEnv();
     }
 
     public DC getDC() {
-        return DC.COM;
+        return authConfig.getDc();
     }
 
     public static Authenticator initialize(CatalystAuthConfig config) throws Exception {
@@ -39,6 +43,7 @@ public class Authenticator implements ICatalystAuth {
             return authMap.get(type);
         }
         Authenticator authenticator = null;
+        authenticator.authConfig = config;
         switch (type) {
             case ZCATALYST_CLI:
                 authenticator = new CatalystCliAuth();
