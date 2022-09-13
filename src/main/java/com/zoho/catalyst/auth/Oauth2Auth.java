@@ -2,9 +2,10 @@ package com.zoho.catalyst.auth;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sun.net.httpserver.HttpServer;
-import com.zoho.catalyst.enums.DC;
+import com.zoho.catalyst.pojo.CatalystAuthConfig;
 import com.zoho.catalyst.pojo.PluginCredential;
 import com.zoho.catalyst.utils.AuthUtil;
+import com.zoho.catalyst.utils.Url;
 import lombok.extern.java.Log;
 import okhttp3.*;
 
@@ -23,7 +24,6 @@ import java.util.concurrent.Executors;
 public class Oauth2Auth extends Authenticator  {
     private static final String CONFIG_FILE_NAME = "auth.json";
     private static final String APP_NAME = "catalyst-maven-plugin";
-    private static final String ZOHO_ACCOUNTS_URL = "https://accounts.zoho.com";
     private static final String CLIENT_ID = "1000.D5IIHDXSPN2MII26AD0V61I6RMVSNM";
     private static final String CLIENT_SECRET = "{{__CATALYST_CLIENT_SECRET__}}";
     private static final Long MAX_EXPIRY = 15 * 60 * 1000L; // 15 min in millis
@@ -42,8 +42,8 @@ public class Oauth2Auth extends Authenticator  {
         log.info("writing complete");
     }
 
-    protected Oauth2Auth() throws Exception {
-        super();
+    protected Oauth2Auth(CatalystAuthConfig authConfig) throws Exception {
+        super(authConfig);
         File configFile = getConfigFile();
         if(configFile.exists()) {
             try(InputStream stream = new FileInputStream(configFile)) {
@@ -54,18 +54,20 @@ public class Oauth2Auth extends Authenticator  {
             return;
         }
         // login here
+        log.info("login starting");
         cred = login();
         log.info("credential has been returned :::: " + cred.getAccessToken() + cred.getRefreshToken());
         writeCredToFile(configFile);
     }
 
-    private String getAccountsUrl() {
-        DC dc = getDC();
-        return ZOHO_ACCOUNTS_URL.replace(".com", dc.getExt());
-    }
-
     private URL getLoginUrl() {
-        return HttpUrl.parse(getAccountsUrl())
+        log.info("getting dc");
+        log.info("DC" + getDC());
+
+        Url url = new Url(getDC());
+        log.info("url " + url);
+        log.info("url2 " + url.getAuthUrl());
+        return HttpUrl.parse(url.getAuthUrl())
                 .newBuilder()
                 .addPathSegments("oauth/v2/auth")
                 .addQueryParameter("client_id", CLIENT_ID)
@@ -79,7 +81,8 @@ public class Oauth2Auth extends Authenticator  {
     }
 
     private PluginCredential getCred(String code) throws Exception {
-        HttpUrl url = HttpUrl.parse(getAccountsUrl())
+        Url url = new Url(getDC());
+        HttpUrl httpUrl = HttpUrl.parse(url.getAuthUrl())
                 .newBuilder()
                 .addPathSegments("oauth/v2/token")
                 .build();
@@ -93,7 +96,7 @@ public class Oauth2Auth extends Authenticator  {
                 .build();
 
         Request request = new Request.Builder()
-                .url(url)
+                .url(httpUrl)
                 .post(formBody)
                 .build();
 
@@ -111,6 +114,7 @@ public class Oauth2Auth extends Authenticator  {
 
     public PluginCredential login() throws Exception {
         URL loginUrl = getLoginUrl();
+        log.info("loginUrl" + loginUrl.toString());
         HttpServer server = HttpServer.create(new InetSocketAddress("localhost", 9005), 0);
         ExecutorService executorService = Executors.newSingleThreadExecutor();
         server.setExecutor(executorService);
@@ -138,7 +142,8 @@ public class Oauth2Auth extends Authenticator  {
     }
 
     private void refreshAccessToken() throws Exception {
-        HttpUrl url = HttpUrl.parse(getAccountsUrl())
+        Url url = new Url(getDC());
+        HttpUrl httpUrl = HttpUrl.parse(url.getAuthUrl())
                 .newBuilder()
                 .addPathSegments("oauth/v2/token")
                 .build();
@@ -151,7 +156,7 @@ public class Oauth2Auth extends Authenticator  {
                 .build();
 
         Request request = new Request.Builder()
-                .url(url)
+                .url(httpUrl)
                 .post(formBody)
                 .build();
 

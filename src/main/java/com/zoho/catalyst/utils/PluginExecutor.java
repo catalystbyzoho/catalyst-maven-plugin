@@ -1,16 +1,14 @@
 package com.zoho.catalyst.utils;
 
-import static org.twdata.maven.mojoexecutor.MojoExecutor.executeMojo;
-
 import com.zoho.catalyst.enums.ExternalPlugin;
 import com.zoho.catalyst.enums.Goal;
-
+import lombok.extern.java.Log;
 import org.apache.maven.model.Plugin;
 import org.codehaus.plexus.util.StringUtils;
 import org.codehaus.plexus.util.xml.Xpp3Dom;
 import org.twdata.maven.mojoexecutor.MojoExecutor;
 
-import lombok.extern.java.Log;
+import static org.twdata.maven.mojoexecutor.MojoExecutor.executeMojo;
 
 @Log
 public class PluginExecutor {

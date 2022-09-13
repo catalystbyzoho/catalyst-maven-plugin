@@ -1,7 +1,6 @@
 package com.zoho.catalyst.enums;
 
 import lombok.Getter;
-import lombok.Setter;
 
 import java.util.Map;
 import java.util.Optional;

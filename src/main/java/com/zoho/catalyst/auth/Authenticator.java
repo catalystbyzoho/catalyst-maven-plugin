@@ -10,10 +10,10 @@ import java.util.HashMap;
 public class Authenticator implements ICatalystAuth {
     public static HashMap<AuthType, Authenticator> authMap = new HashMap<>();
 
-    private CatalystAuthConfig authConfig = null;
+    private final CatalystAuthConfig authConfig;
 
-    protected Authenticator() {
-
+    protected Authenticator(CatalystAuthConfig authConfig) {
+        this.authConfig = authConfig;
     }
 
     public String getAccessToken() throws Exception {
@@ -42,14 +42,13 @@ public class Authenticator implements ICatalystAuth {
         if(authMap.containsKey(type)) {
             return authMap.get(type);
         }
-        Authenticator authenticator = null;
-        authenticator.authConfig = config;
+        Authenticator authenticator;
         switch (type) {
             case ZCATALYST_CLI:
-                authenticator = new CatalystCliAuth();
+                authenticator = new CatalystCliAuth(config);
                 break;
             default:
-                authenticator = new Oauth2Auth();
+                authenticator = new Oauth2Auth(config);
         }
         authMap.put(type, authenticator);
         return authenticator;

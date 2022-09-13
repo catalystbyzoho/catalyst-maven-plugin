@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.zoho.catalyst.Interceptor.CatalystAuthorizationInterceptor;
 import com.zoho.catalyst.Interceptor.CatalystHttpInterceptor;
 import com.zoho.catalyst.pojo.CatalystConfig;
+import com.zoho.catalyst.utils.Url;
 import lombok.extern.java.Log;
 import okhttp3.*;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
@@ -23,7 +24,6 @@ import java.util.zip.ZipFile;
 @Log
 @Mojo(name = "deploy", defaultPhase = LifecyclePhase.DEPLOY)
 public class DeployMojo extends CatalystMojo {
-    public static final String CATALYST_API_URL = "https://api.catalyst.zoho.com";
     /**
      * Source archive name
      *
@@ -49,8 +49,8 @@ public class DeployMojo extends CatalystMojo {
     }
 
     private HttpUrl getCatalystApiUrl() {
-        String baseUrl = CATALYST_API_URL.replace(".com", authConfig.getDc().getExt());
-        return HttpUrl.parse(baseUrl)
+        Url url = new Url(authConfig.getDc());
+        return HttpUrl.parse(url.getAdminUrl())
                 .newBuilder()
                 .addPathSegments("baas/v1/project/")
                 .addPathSegment(project)
@@ -70,14 +70,15 @@ public class DeployMojo extends CatalystMojo {
 
         // read catalyst config file
         CatalystConfig config = null;
-        ZipFile zipFile = new ZipFile(catalystArchive);
-        Enumeration<? extends ZipEntry> entries = zipFile.entries();
-        while(entries.hasMoreElements()){
-            ZipEntry entry = entries.nextElement();
-            if(entry.getName().equals("catalyst-config.json")) {
-                try(InputStream stream = zipFile.getInputStream(entry)) {
-                    ObjectMapper mapper = new ObjectMapper();
-                    config = mapper.readValue(stream, CatalystConfig.class);
+        try (ZipFile zipFile = new ZipFile(catalystArchive)){
+            Enumeration<? extends ZipEntry> entries = zipFile.entries();
+            while(entries.hasMoreElements()){
+                ZipEntry entry = entries.nextElement();
+                if(entry.getName().equals("catalyst-config.json")) {
+                    try(InputStream stream = zipFile.getInputStream(entry)) {
+                        ObjectMapper mapper = new ObjectMapper();
+                        config = mapper.readValue(stream, CatalystConfig.class);
+                    }
                 }
             }
         }
@@ -115,5 +116,6 @@ public class DeployMojo extends CatalystMojo {
         log.info("Executing the request");
         Response response = call.execute();
         log.info("Response from server is :::::: " + response.body().string());
+        response.close();
     }
 }

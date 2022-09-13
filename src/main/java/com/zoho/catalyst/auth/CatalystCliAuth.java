@@ -1,6 +1,7 @@
 package com.zoho.catalyst.auth;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.zoho.catalyst.pojo.CatalystAuthConfig;
 import com.zoho.catalyst.pojo.CatalystCliConfig;
 import com.zoho.catalyst.pojo.PluginCredential;
 import com.zoho.catalyst.utils.AuthUtil;
@@ -17,7 +18,8 @@ public class CatalystCliAuth extends Authenticator {
 
     private PluginCredential cred;
 
-    protected CatalystCliAuth() throws Exception {
+    protected CatalystCliAuth(CatalystAuthConfig authConfig) throws Exception {
+        super(authConfig);
         File configFile = Paths.get(AuthUtil.getOSConfigDir(APP_NAME).toString(), CONFIG_FILE_NAME).toFile();
         if(!configFile.exists()) {
             throw new Exception("unable to find cli config file");
