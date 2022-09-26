@@ -4,6 +4,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.zoho.catalyst.Interceptor.CatalystAuthorizationInterceptor;
 import com.zoho.catalyst.Interceptor.CatalystHttpInterceptor;
+import com.zoho.catalyst.auth.Authenticator;
+import com.zoho.catalyst.enums.Environment;
 import com.zoho.catalyst.pojo.CatalystConfig;
 import com.zoho.catalyst.pojo.CatalystProjectDetails;
 import com.zoho.catalyst.pojo.PluginCredential;
@@ -120,7 +122,6 @@ public class ServeMojo extends CatalystMojo {
         log.info("Executing the request");
         Response response = call.execute();
         CatalystProjectDetails projectDetails = ResponseUtil.deserializeCatalystResponse(response, CatalystProjectDetails.class);
-        log.info("projectDetails name :::::: " + projectDetails.getProjectName());
         response.close();
 
         List<String> javaCommand = new ArrayList<String>();
@@ -143,7 +144,18 @@ public class ServeMojo extends CatalystMojo {
         env.put("X_ZOHO_CATALYST_CODE_LOCATION", fnDir.toString() + File.separator);
         env.put("X_ZOHO_CATALYST_ACCOUNTS_URL", url.getAuthUrl());
         env.put("X_ZOHO_CATALYST_CONSOLE_URL", url.getAdminUrl());
+        // project thread local variables
+        env.put("X_ZOHO_CATALYST_Environment", Environment.DEVELOPMENT.getEnv());
+        env.put("X-ZC-ProjectId", projectDetails.getId());
+        env.put("X-ZC-Project-Key", projectDetails.getProjectDomainDetails().getProjectDomainId());
+        env.put("X-ZC-Project-Domain", projectDetails.getProjectDomainDetails().getProjectDomain());
+        // auth thread local variables
+        String accessToken = Authenticator.initialize(authConfig).getAccessToken();
+        env.put("X_ZOHO_CATALYST_ADMIN_TOKEN", accessToken);
+
         Process javaFnExe = ProcessUtil.executeCommand(javaCommand, fnDir.toString(), env);
+        log.info("Function started successfully");
+        log.info("[" + mavenProject.getArtifactId() + "] => http://localhost:" + port);
         javaFnExe.waitFor();
     }
 }

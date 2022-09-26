@@ -25,7 +25,8 @@ public class Oauth2Auth extends Authenticator  {
     private static final String CONFIG_FILE_NAME = "auth.json";
     private static final String APP_NAME = "catalyst-maven-plugin";
     private static final String CLIENT_ID = "1000.D5IIHDXSPN2MII26AD0V61I6RMVSNM";
-    private static final String CLIENT_SECRET = "{{__CATALYST_CLIENT_SECRET__}}";
+    // TODO: need to change it to {{__CATALYST_CLIENT_SECRET__}}
+    private static final String CLIENT_SECRET = "02ee875ecfc50573e5cc8d62916ad3077be20d0f42";
     private static final Long MAX_EXPIRY = 15 * 60 * 1000L; // 15 min in millis
     private static PluginCredential cred = null;
     public static File getConfigFile() {

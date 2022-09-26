@@ -77,7 +77,9 @@ public class JavaaioServer extends DefaultCoreServer {
 			rootLogger.addHandler(handler);
 			// adding filter for setting thread local
 			ArrayList<Class<? extends Filter>> filterClass = new ArrayList<>();
-			filterClass.add(ThreadlocalFilter.class);
+			filterClass.add(ProjectFilter.class);
+			filterClass.add(AuthFilter.class);
+			filterClass.add(RequestFilter.class);
 			aioServer.setFilterClass(filterClass);
 
 			port = Integer.parseInt(args[0]);
