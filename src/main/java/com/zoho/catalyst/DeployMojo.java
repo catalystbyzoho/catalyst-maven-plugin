@@ -48,14 +48,23 @@ public class DeployMojo extends CatalystMojo {
         return true;
     }
 
-    private HttpUrl getCatalystApiUrl() {
+    private HttpUrl getCatalystApiUrl(String type) {
         Url url = new Url(authConfig.getDc());
-        return HttpUrl.parse(url.getAdminUrl())
+        HttpUrl.Builder httpBuilder = HttpUrl.parse(url.getAdminUrl())
                 .newBuilder()
                 .addPathSegments("baas/v1/project/")
-                .addPathSegment(project)
-                .addPathSegments("server/upsert")
-                .build();
+                .addPathSegment(project);
+        // TODO: move to enum
+        switch (type) {
+            case "basicio":
+                httpBuilder.addPathSegments("function");
+                break;
+            case "advancedio":
+                httpBuilder.addPathSegments("server");
+                break;
+        }
+        httpBuilder.addPathSegments("upsert");
+        return httpBuilder.build();
     }
 
     @Override
@@ -101,14 +110,17 @@ public class DeployMojo extends CatalystMojo {
                 )
                 .addFormDataPart("stack", config.getDeployment().getStack())
                 .addFormDataPart("name", config.getDeployment().getName());
-//                .addFormDataPart("type", config.getDeployment().getType());
+        if(config.getDeployment().getType().equals("basicio")) {
+            reqBuilder.addFormDataPart("type", config.getDeployment().getType());
+        }
         log.info("config.getDeployment().getType() ::: " + config.getDeployment().getType());
         if(memory != null) {
             reqBuilder.addFormDataPart("memory", memory);
         }
-        log.info("getCatalystApiUrl() ::: " + getCatalystApiUrl());
+        log.info("getCatalystApiUrl() ::: " + getCatalystApiUrl(config.getDeployment().getType()));
         Request request = new Request.Builder()
-                .url(getCatalystApiUrl())
+                .url(getCatalystApiUrl(config.getDeployment().getType()))
+                .addHeader("CATALYST-ORG", org)
                 .put(reqBuilder.build())
                 .build();
 

@@ -4,7 +4,7 @@
 
     <groupId>com.zoho.catalyst</groupId>
     <artifactId>catalyst-maven-plugin</artifactId>
-    <version>0.0.3</version>
+    <version>0.0.4</version>
     <packaging>maven-plugin</packaging>
 
     <name>catalyst-maven-plugin Maven Mojo</name>
@@ -200,6 +200,10 @@
                         </configuration>
                     </execution>
                 </executions>
+                <configuration>
+                    <!--suppress UnresolvedMavenProperty, MavenModelInspection -->
+                    <skip>${maven.sign.skip}</skip>
+                </configuration>
             </plugin>
 
             <!-- disable default deploy -->

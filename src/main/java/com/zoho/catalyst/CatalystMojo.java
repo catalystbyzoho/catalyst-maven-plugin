@@ -53,6 +53,9 @@ public abstract class CatalystMojo extends AbstractMojo {
     @Parameter(property = "project", required = true)
     protected String project;
 
+    @Parameter(property = "org", required = true)
+    protected String org;
+
     abstract void doExecute() throws Exception;
     protected boolean authNeeded() {
         return false;

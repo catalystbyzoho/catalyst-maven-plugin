@@ -90,16 +90,12 @@ public class ServeMojo extends CatalystMojo {
             config = mapper.readValue(configStream, CatalystConfig.class);
         }
         log.info("config read done");
-        if(config != null && !config.getDeployment().getType().equals("advancedio")) {
-            log.info("Only advancedIO functions is supported!!!");
-            return;
-        }
-        Path invokerClassPth = catalystTargetDir.resolve(Paths.get(".catalyst", "aioserver", "JavaaioServer.class"));
-        Path aioJavaSrc = catalystTargetDir.resolve("aioserver");
-        new ResourceUtil().transferResourceFromJar("invoker/aio", aioJavaSrc);
+        Path invokerClassPth = catalystTargetDir.resolve(Paths.get(".catalyst", "invoker", "JavaInvoker.class"));
+        Path aioJavaSrc = catalystTargetDir.resolve("invoker");
+        new ResourceUtil().transferResourceFromJar("invoker", aioJavaSrc);
         // give proper java path
         MojoUtil.Serve server = new MojoUtil.Serve();
-        server.ensureInvoker(aioJavaSrc.resolve("JavaaioServer.java"), invokerClassPth);
+        server.ensureInvoker(aioJavaSrc.resolve("JavaInvoker.java"), invokerClassPth);
         log.info("ensureInvoker complete");
         try (Stream<Path> stream = Files.walk(invokerClassPth.getParent())) {
             stream.forEach(source -> {
@@ -117,6 +113,7 @@ public class ServeMojo extends CatalystMojo {
                 .build();
         Request request = new Request.Builder()
                 .url(getCatalystProjectsUrl(url.getAdminUrl()))
+                .addHeader("CATALYST-ORG", org)
                 .build();
         Call call = client.newCall(request);
         log.info("Executing the request");
@@ -128,7 +125,7 @@ public class ServeMojo extends CatalystMojo {
         javaCommand.add("java");
         javaCommand.add("-cp");
         javaCommand.add(fnDir.resolve("*").toString() + ProcessUtil.classPathSep + fnDir.toString() + File.separator);
-        javaCommand.add("-DCATALYST_FUNCTION_TYPE=applogic");
+        javaCommand.add("-DCATALYST_FUNCTION_TYPE="+config.getDeployment().getType()); // changing to basicio will also works
         javaCommand.add("-DisDev=true");
         if(debug != -1) {
             log.info("you can attach your debugger at port : " + debug);

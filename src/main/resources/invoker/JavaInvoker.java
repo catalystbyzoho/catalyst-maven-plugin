@@ -11,7 +11,7 @@ import javax.servlet.Filter;
 
 import com.cop.main.server.DefaultCoreServer;
 
-public class JavaaioServer extends DefaultCoreServer {
+public class JavaInvoker extends DefaultCoreServer {
 
 	private static final Integer MESSAGE_LENGTH = 1500;
 	private static int port;
@@ -71,7 +71,7 @@ public class JavaaioServer extends DefaultCoreServer {
 			LogManager manager = LogManager.getLogManager();
 			manager.reset();
 			Logger rootLogger = manager.getLogger("");
-			JavaaioServer aioServer = new JavaaioServer();
+			JavaInvoker aioServer = new JavaInvoker();
 			// adding log handler
 			LogHandler handler = aioServer.new LogHandler();
 			rootLogger.addHandler(handler);
