@@ -73,8 +73,8 @@ public class DeployMojo extends CatalystMojo {
         File catalystArchive = Paths.get(buildDir.getAbsolutePath(), sourceArchiveName).toFile();
         if(!catalystArchive.exists()) {
             // if file doesn't exist request the user to execute package goal
-            log.info("this file will not be deployed");
-            return;
+            log.severe("Source archive '" + catalystArchive.toString() + "' does not exist!");
+            throw new Exception("Source archive not found");
         }
 
         // read catalyst config file
@@ -92,8 +92,8 @@ public class DeployMojo extends CatalystMojo {
             }
         }
         if(config == null) {
-            log.info("unable to read config file");
-            return;
+            log.severe("unable to read config file");
+            throw new Exception("catalyst-config.json cannot be read");
         }
 
         OkHttpClient client = new OkHttpClient.Builder()
