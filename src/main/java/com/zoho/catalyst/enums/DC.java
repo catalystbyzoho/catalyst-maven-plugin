@@ -11,7 +11,11 @@ import java.util.stream.Stream;
 
 public enum DC {
     @JsonAlias("US")
-    COM("com", "US", ".com");
+    COM("com", "US", ".com"),
+    @JsonAlias("IN")
+    IN("in", "IN", ".in"),
+    @JsonAlias("EU")
+    EU("eu", "EU", ".eu");
 
     @Getter
     private final String key;

@@ -95,6 +95,7 @@ public class ServeMojo extends CatalystMojo {
         new ResourceUtil().transferResourceFromJar("invoker", aioJavaSrc);
         // give proper java path
         MojoUtil.Serve server = new MojoUtil.Serve();
+        log.info("transfer resource from jar complete123");
         server.ensureInvoker(aioJavaSrc.resolve("JavaInvoker.java"), invokerClassPth);
         log.info("ensureInvoker complete");
         try (Stream<Path> stream = Files.walk(invokerClassPth.getParent())) {
@@ -102,7 +103,7 @@ public class ServeMojo extends CatalystMojo {
                 if(source.toFile().isDirectory()) {
                     return;
                 }
-                Path sourceWithoutLib = Paths.get(source.toString().replaceFirst("lib" + File.separator, ""));
+                Path sourceWithoutLib = Paths.get(source.toString().replaceFirst(new StringBuilder().append("lib").append("\\").append(File.separator).toString(), ""));
                 FileUtil.copy(source, fnDir.resolve(invokerClassPth.getParent().relativize(sourceWithoutLib)));
             });
         }
@@ -124,7 +125,7 @@ public class ServeMojo extends CatalystMojo {
         List<String> javaCommand = new ArrayList<String>();
         javaCommand.add("java");
         javaCommand.add("-cp");
-        javaCommand.add(fnDir.resolve("*").toString() + ProcessUtil.classPathSep + fnDir.toString() + File.separator);
+        javaCommand.add(new StringBuilder().append(fnDir.toString()).append(File.separator).append("*").append(File.pathSeparator).append(fnDir.toString()).append(File.separator).toString());
         javaCommand.add("-DCATALYST_FUNCTION_TYPE="+config.getDeployment().getType()); // changing to basicio will also works
         javaCommand.add("-DisDev=true");
         if(debug != -1) {

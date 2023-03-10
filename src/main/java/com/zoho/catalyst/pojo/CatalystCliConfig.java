@@ -13,6 +13,7 @@ public class CatalystCliConfig {
     private DcConfig com;
 
     public DcConfig getDcConfig() {
+        // TODO: will change once we support CLI auth
         if(activeDC.equals(DC.COM.getKey())) {
             return com;
         }

@@ -10,11 +10,14 @@ import org.twdata.maven.mojoexecutor.MojoExecutor;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URI;
+import java.nio.file.FileSystem;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Logger;
 
 @Log
 public class MojoUtil {
@@ -24,13 +27,14 @@ public class MojoUtil {
             List<String> command = new ArrayList<String>();
             command.add("javac");
             command.add("-cp");
-            command.add(Paths.get("lib", "*").toString() + ProcessUtil.classPathSep + ".");
+            command.add(new StringBuilder().append("lib").append(File.separator).append("*").append(File.pathSeparator).append(".").toString());
             command.add("-g");
             command.add("-d");
             command.add(targetClassPth.getParent().toString());
             command.add(sourceJavaPth.toString());
             Process javacProcess = ProcessUtil.executeCommand(command, sourceJavaPth.getParent().toString(), null);
             javacProcess.waitFor();
+            log.info("javac process completed");
             // copy lib folder to target
             Path srcPth = Paths.get(sourceJavaPth.getParent().toString(), "lib");
             Path destPth = Paths.get(targetClassPth.getParent().toString(), "lib");

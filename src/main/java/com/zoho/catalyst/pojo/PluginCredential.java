@@ -1,12 +1,14 @@
 package com.zoho.catalyst.pojo;
 
 import com.fasterxml.jackson.annotation.JsonAlias;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.zoho.catalyst.enums.DC;
 import lombok.Getter;
 import lombok.Setter;
 
 @Getter
 @Setter
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class PluginCredential {
     private String token;
     @JsonAlias("created_time")

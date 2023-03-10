@@ -11,8 +11,6 @@ public class ProcessUtil {
     public static final boolean isWindows = SystemUtils.IS_OS_WINDOWS;
     public static final boolean isMac = SystemUtils.IS_OS_MAC;
 
-    public static final char classPathSep = isWindows ? ';' : ':';
-
     public static Process executeCommand(@NotNull List<String> command, String dir, Map<String, String> env) throws Exception {
         ProcessBuilder builder = new ProcessBuilder();
         builder.command(command);
