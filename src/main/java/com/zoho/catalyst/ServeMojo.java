@@ -154,6 +154,18 @@ public class ServeMojo extends CatalystMojo {
         Process javaFnExe = ProcessUtil.executeCommand(javaCommand, fnDir.toString(), env);
         log.info("Function started successfully");
         log.info("[" + mavenProject.getArtifactId() + "] => http://localhost:" + port);
+        Runtime.getRuntime().addShutdownHook(new Thread()
+        {
+            @Override
+            public void run()
+            {
+                try {
+                    javaFnExe.destroy();
+                } catch (Exception e) {
+                    log.info("If you have trouble exiting the process try running 'taskkill /IM java.exe /F'");
+                }
+            }
+        });
         javaFnExe.waitFor();
     }
 }
