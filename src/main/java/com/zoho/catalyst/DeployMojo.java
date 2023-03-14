@@ -81,7 +81,7 @@ public class DeployMojo extends CatalystMojo {
             }
             log.info("Trying to running catalyst:package");
             List<String> packCommand = new ArrayList<>();
-            packCommand.add("mvn");
+            packCommand.add("mvn" + (ProcessUtil.isWindows ? ".cmd" : ""));
             packCommand.add("catalyst:package");
             Process packageProcess = ProcessUtil.executeCommand(packCommand, mavenProject.getBasedir().getAbsolutePath(), null);
             packageProcess.waitFor();
