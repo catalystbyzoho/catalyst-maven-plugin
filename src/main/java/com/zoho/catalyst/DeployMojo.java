@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.zoho.catalyst.Interceptor.CatalystAuthorizationInterceptor;
 import com.zoho.catalyst.Interceptor.CatalystHttpInterceptor;
 import com.zoho.catalyst.pojo.CatalystConfig;
+import com.zoho.catalyst.utils.ProcessUtil;
 import com.zoho.catalyst.utils.Url;
 import lombok.extern.java.Log;
 import okhttp3.*;
@@ -14,7 +15,9 @@ import org.apache.maven.plugins.annotations.Parameter;
 import java.io.File;
 import java.io.InputStream;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.Enumeration;
+import java.util.List;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
@@ -72,9 +75,16 @@ public class DeployMojo extends CatalystMojo {
         String sourceArchiveName = archiveName.replace(".zip", "") + ".zip";
         File catalystArchive = Paths.get(buildDir.getAbsolutePath(), sourceArchiveName).toFile();
         if(!catalystArchive.exists()) {
-            // if file doesn't exist request the user to execute package goal
-            log.severe("Source archive '" + catalystArchive.toString() + "' does not exist!");
-            throw new Exception("Source archive not found");
+            log.info("Source archive '" + catalystArchive.toString() + "' does not exist!");
+            if(!sourceArchiveName.equals("catalyst-archive.zip")) {
+                throw new Exception("Given source archive not found");
+            }
+            log.info("Trying to running catalyst:package");
+            List<String> packCommand = new ArrayList<>();
+            packCommand.add("mvn");
+            packCommand.add("catalyst:package");
+            Process packageProcess = ProcessUtil.executeCommand(packCommand, mavenProject.getBasedir().getAbsolutePath(), null);
+            packageProcess.waitFor();
         }
 
         // read catalyst config file

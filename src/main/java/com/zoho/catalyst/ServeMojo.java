@@ -32,7 +32,7 @@ import java.util.Map;
 import java.util.stream.Stream;
 
 /**
- * Goal which forms zip file that can be uploaded to catalyst console
+ * Goal which compiles and runs your function code locally
  */
 @Log
 @Mojo(name = "serve", defaultPhase = LifecyclePhase.TEST, requiresDependencyResolution = ResolutionScope.RUNTIME)
@@ -154,18 +154,6 @@ public class ServeMojo extends CatalystMojo {
         Process javaFnExe = ProcessUtil.executeCommand(javaCommand, fnDir.toString(), env);
         log.info("Function started successfully");
         log.info("[" + mavenProject.getArtifactId() + "] => http://localhost:" + port);
-        Runtime.getRuntime().addShutdownHook(new Thread()
-        {
-            @Override
-            public void run()
-            {
-                try {
-                    javaFnExe.destroy();
-                } catch (Exception e) {
-                    log.info("If you have trouble exiting the process try running 'taskkill /IM java.exe /F'");
-                }
-            }
-        });
         javaFnExe.waitFor();
     }
 }
