@@ -5,6 +5,7 @@ import com.sun.net.httpserver.HttpServer;
 import com.zoho.catalyst.pojo.CatalystAuthConfig;
 import com.zoho.catalyst.pojo.PluginCredential;
 import com.zoho.catalyst.utils.AuthUtil;
+import com.zoho.catalyst.utils.ResponseUtil;
 import com.zoho.catalyst.utils.Url;
 import lombok.extern.java.Log;
 import okhttp3.*;
@@ -102,11 +103,10 @@ public class Oauth2Auth extends Authenticator  {
                 .build();
 
         Response response = new OkHttpClient().newCall(request).execute();
-        ObjectMapper mapper = new ObjectMapper();
-        PluginCredential cred = mapper.readValue(response.body().byteStream(), PluginCredential.class);
+        PluginCredential cred = ResponseUtil.deserializeResponse(response, PluginCredential.class);
         response.close();
         if(cred.getAccessToken() == null || cred.getRefreshToken() == null) {
-            throw new Exception("Unable to get token from code");
+            throw new Exception("Unable to get token from code. Check if DC provided is correct.");
         }
         cred.setCreatedTime(System.currentTimeMillis());
         cred.setExpiresAt(System.currentTimeMillis() + (cred.getExpiredIn() * 1000));
@@ -162,11 +162,10 @@ public class Oauth2Auth extends Authenticator  {
                 .build();
 
         Response response = new OkHttpClient().newCall(request).execute();
-        ObjectMapper mapper = new ObjectMapper();
-        PluginCredential refreshedCred = mapper.readValue(response.body().byteStream(), PluginCredential.class);
+        PluginCredential refreshedCred = ResponseUtil.deserializeResponse(response, PluginCredential.class);
         response.close();
         if(refreshedCred.getAccessToken() == null) {
-            throw new Exception("Unable to refresh access token");
+            throw new Exception("Unable to refresh access token. Check if provided DC config is correct.");
         }
         cred.setCreatedTime(cred.getCreatedTime() == null ? System.currentTimeMillis() : cred.getCreatedTime());
         cred.setExpiresAt(System.currentTimeMillis() + (refreshedCred.getExpiredIn() * 1000));

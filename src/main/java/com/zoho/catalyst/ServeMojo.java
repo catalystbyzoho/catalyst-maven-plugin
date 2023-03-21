@@ -1,14 +1,12 @@
 package com.zoho.catalyst;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.zoho.catalyst.Interceptor.CatalystAuthorizationInterceptor;
 import com.zoho.catalyst.Interceptor.CatalystHttpInterceptor;
 import com.zoho.catalyst.auth.Authenticator;
 import com.zoho.catalyst.enums.Environment;
 import com.zoho.catalyst.pojo.CatalystConfig;
 import com.zoho.catalyst.pojo.CatalystProjectDetails;
-import com.zoho.catalyst.pojo.PluginCredential;
 import com.zoho.catalyst.utils.*;
 import lombok.extern.java.Log;
 import okhttp3.*;
@@ -19,9 +17,7 @@ import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.plugins.annotations.ResolutionScope;
 
 import java.io.File;
-import java.io.IOException;
 import java.io.InputStream;
-import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -119,7 +115,7 @@ public class ServeMojo extends CatalystMojo {
         Call call = client.newCall(request);
         log.info("Executing the request");
         Response response = call.execute();
-        CatalystProjectDetails projectDetails = ResponseUtil.deserializeCatalystResponse(response, CatalystProjectDetails.class);
+        CatalystProjectDetails projectDetails = ResponseUtil.deserializeResponse(response, CatalystProjectDetails.class, new CatalystResponseDeserializer<>(CatalystProjectDetails.class));
         response.close();
 
         List<String> javaCommand = new ArrayList<String>();

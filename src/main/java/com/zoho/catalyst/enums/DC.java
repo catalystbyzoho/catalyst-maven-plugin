@@ -15,7 +15,9 @@ public enum DC {
     @JsonAlias("IN")
     IN("in", "IN", ".in"),
     @JsonAlias("EU")
-    EU("eu", "EU", ".eu");
+    EU("eu", "EU", ".eu"),
+    @JsonAlias("AU")
+    AU("au", "AU", ".com.au");
 
     @Getter
     private final String key;

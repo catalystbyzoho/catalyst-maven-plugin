@@ -21,7 +21,6 @@ public class CatalystResponseDeserializer<T> extends StdDeserializer<T> {
     public T deserialize(JsonParser jsonParser, DeserializationContext deserializationContext) throws IOException, JacksonException {
         JsonNode node = jsonParser.getCodec().readTree(jsonParser);
         if(!node.has("data")) {
-            System.out.println("no data found");
             return null;
         }
         String dataContent = node.get("data").toString();
