@@ -35,7 +35,6 @@ public class Oauth2Auth extends Authenticator  {
     }
 
     public static void writeCredToFile(File configFile) throws IOException {
-        log.info("writing to file ::: " + configFile.getAbsolutePath());
         if(!configFile.exists()) {
             configFile.getParentFile().mkdirs();
             configFile.createNewFile();
@@ -58,17 +57,13 @@ public class Oauth2Auth extends Authenticator  {
         // login here
         log.info("login starting");
         cred = login();
-        log.info("credential has been returned :::: " + cred.getAccessToken() + cred.getRefreshToken());
         writeCredToFile(configFile);
     }
 
     private URL getLoginUrl() {
-        log.info("getting dc");
         log.info("DC" + getDC());
 
         Url url = new Url(getDC());
-        log.info("url " + url);
-        log.info("url2 " + url.getAuthUrl());
         return HttpUrl.parse(url.getAuthUrl())
                 .newBuilder()
                 .addPathSegments("oauth/v2/auth")
@@ -179,7 +174,6 @@ public class Oauth2Auth extends Authenticator  {
             log.info("refreshing access token");
             refreshAccessToken();
         }
-        log.info("returning access token");
         return cred.getAccessToken();
     }
 }

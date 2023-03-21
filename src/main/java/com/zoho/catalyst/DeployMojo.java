@@ -4,7 +4,10 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.zoho.catalyst.Interceptor.CatalystAuthorizationInterceptor;
 import com.zoho.catalyst.Interceptor.CatalystHttpInterceptor;
 import com.zoho.catalyst.pojo.CatalystConfig;
+import com.zoho.catalyst.pojo.CatalystFunctionDetails;
+import com.zoho.catalyst.utils.CatalystResponseDeserializer;
 import com.zoho.catalyst.utils.ProcessUtil;
+import com.zoho.catalyst.utils.ResponseUtil;
 import com.zoho.catalyst.utils.Url;
 import lombok.extern.java.Log;
 import okhttp3.*;
@@ -79,7 +82,6 @@ public class DeployMojo extends CatalystMojo {
             if(!sourceArchiveName.equals("catalyst-archive.zip")) {
                 throw new Exception("Given source archive not found");
             }
-            log.info("Trying to running catalyst:package");
             List<String> packCommand = new ArrayList<>();
             packCommand.add("mvn" + (ProcessUtil.isWindows ? ".cmd" : ""));
             packCommand.add("catalyst:package");
@@ -123,11 +125,9 @@ public class DeployMojo extends CatalystMojo {
         if(config.getDeployment().getType().equals("basicio")) {
             reqBuilder.addFormDataPart("type", config.getDeployment().getType());
         }
-        log.info("config.getDeployment().getType() ::: " + config.getDeployment().getType());
         if(memory != null) {
             reqBuilder.addFormDataPart("memory", memory);
         }
-        log.info("getCatalystApiUrl() ::: " + getCatalystApiUrl(config.getDeployment().getType()));
         Request request = new Request.Builder()
                 .url(getCatalystApiUrl(config.getDeployment().getType()))
                 .addHeader("CATALYST-ORG", org)
@@ -135,9 +135,10 @@ public class DeployMojo extends CatalystMojo {
                 .build();
 
         Call call = client.newCall(request);
-        log.info("Executing the request");
         Response response = call.execute();
-        log.info("Response from server is :::::: " + response.body().string());
+        CatalystFunctionDetails functionDetails = ResponseUtil.deserializeResponse(response, CatalystFunctionDetails.class, new CatalystResponseDeserializer<>(CatalystFunctionDetails.class));
         response.close();
+        log.info("Successfully deployed");
+        log.info("URL: " + functionDetails.getUrl());
     }
 }

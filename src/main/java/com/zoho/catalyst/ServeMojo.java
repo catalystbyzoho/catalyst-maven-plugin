@@ -69,31 +69,25 @@ public class ServeMojo extends CatalystMojo {
     public void doExecute() throws Exception {
         Path catalystTargetDir = Paths.get(buildDir.getAbsolutePath(), ".build");
         Path fnDir = catalystTargetDir.resolve(mavenProject.getArtifactId());
-        log.info("FN_DIR :: " + fnDir.toString());
         MojoUtil.Package packager = new MojoUtil.Package(getEnv());
         packager.compile();
         packager.copyDependency(buildDir);
         packager.createJar();
         File assemblyFile = packager.copyAssembly(buildDir);
-        log.info("executing assembly file to target dir :: " + Paths.get(buildDir.getAbsolutePath()).relativize(fnDir).toString());
         packager.executeAssemble(assemblyFile, Paths.get(buildDir.getAbsolutePath()).relativize(fnDir).toString(), false);
         log.info("assembly execution complete");
         // read catalyst config file
         CatalystConfig config;
         try (InputStream configStream = FileUtils.openInputStream(fnDir.resolve("catalyst-config.json").toFile())) {
             ObjectMapper mapper = new ObjectMapper();
-            log.info("configStream read val");
             config = mapper.readValue(configStream, CatalystConfig.class);
         }
-        log.info("config read done");
         Path invokerClassPth = catalystTargetDir.resolve(Paths.get(".catalyst", "invoker", "JavaInvoker.class"));
         Path aioJavaSrc = catalystTargetDir.resolve("invoker");
         new ResourceUtil().transferResourceFromJar("invoker", aioJavaSrc);
         // give proper java path
         MojoUtil.Serve server = new MojoUtil.Serve();
-        log.info("transfer resource from jar complete123");
         server.ensureInvoker(aioJavaSrc.resolve("JavaInvoker.java"), invokerClassPth);
-        log.info("ensureInvoker complete");
         try (Stream<Path> stream = Files.walk(invokerClassPth.getParent())) {
             stream.forEach(source -> {
                 if(source.toFile().isDirectory()) {
