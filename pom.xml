@@ -4,7 +4,7 @@
 
     <groupId>com.zoho.catalyst</groupId>
     <artifactId>catalyst-maven-plugin</artifactId>
-    <version>0.0.4</version>
+    <version>0.0.5</version>
     <packaging>maven-plugin</packaging>
 
     <name>catalyst-maven-plugin Maven Mojo</name>
